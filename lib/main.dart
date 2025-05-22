@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test_scrol/productList.dart';
 import 'package:footer/footer.dart';
-import 'package:footer/footer_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
