@@ -1,9 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:test_scrol/cart.dart';
+import 'package:test_scrol/cartProvider.dart';
+import 'package:test_scrol/cart_icon.dart';
 import 'package:test_scrol/productList.dart';
 import 'package:footer/footer.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// ignore: depend_on_referenced_packages
 import 'package:flutter_animate_on_scroll/flutter_animate_on_scroll.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:uuid/uuid.dart';
+import 'package:localstorage/localstorage.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(const MyApp());
 
@@ -14,11 +22,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: _title,
+    final Width = MediaQuery.of(context).size.width;
+    final Hight = MediaQuery.of(context).size.height;
+    final Mize = Hight / Width;
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => Cartprovider())],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: _title,
 
-      home: MyStatefulWidget(),
+        home: const MyStatefulWidget(),
+        routes: {'/cartPage': (context) => Cart()},
+      ),
     );
   }
 }
@@ -46,50 +61,65 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
   @override
   void dispose() {
     _scrollController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
+  // _listenToScrollMomemnts
   void _listenToScrollMomemnts() {
     int index = 0;
     print(_scrollController.offset);
 
-    if (_scrollController.offset < 347) {
+    if (_scrollController.offset < 377) {
       index = 0;
-    } else if (_scrollController.offset > 347 &&
-        _scrollController.offset < 1619) {
+      // Meal
+    } else if (_scrollController.offset > 377 &&
+        _scrollController.offset < 1886) {
       index = 1;
-    } else if (_scrollController.offset > 1619 &&
-        _scrollController.offset < 2761) {
+      // Cake
+    } else if (_scrollController.offset > 1886 &&
+        _scrollController.offset < 3195) {
       index = 2;
-    } else if (_scrollController.offset > 2761 &&
-        _scrollController.offset < 4763) {
+      // Tea
+    } else if (_scrollController.offset > 3195 &&
+        _scrollController.offset < 5667) {
       index = 3;
-    } else if (_scrollController.offset > 4763 &&
-        _scrollController.offset < 6768) {
+      // Juice
+    } else if (_scrollController.offset > 5667 &&
+        _scrollController.offset < 7874) {
       index = 4;
-    } else if (_scrollController.offset > 6768 &&
-        _scrollController.offset < 7914) {
+      // cold drinks
+    } else if (_scrollController.offset > 7874 &&
+        _scrollController.offset < 9186) {
       index = 5;
-    } else if (_scrollController.offset > 7914 &&
-        _scrollController.offset < 9550) {
+      // ice cofee
+    } else if (_scrollController.offset > 9186 &&
+        _scrollController.offset < 11027) {
       index = 6;
-    } else if (_scrollController.offset > 9550 &&
-        _scrollController.offset < 13165) {
+      // hot cofee
+    } else if (_scrollController.offset > 11027 &&
+        _scrollController.offset < 15386) {
       index = 7;
-    } else if (_scrollController.offset > 13165 &&
-        _scrollController.offset < 13459) {
+      // معسلات
+    } else if (_scrollController.offset > 15386 &&
+        _scrollController.offset < 15745) {
       index = 8;
-    } else if (_scrollController.offset > 13459 &&
-        _scrollController.offset < 14603) {
+      // birthday
+    } else if (_scrollController.offset > 15745 &&
+        _scrollController.offset < 17099) {
       index = 9;
-    } else if (_scrollController.offset > 14603 &&
-        _scrollController.offset < 15141) {
+      //نكهة
+    } else if (_scrollController.offset > 17099 &&
+        _scrollController.offset < 17663) {
       index = 10;
-    } else if (_scrollController.offset > 15141 &&
-        _scrollController.offset < 15800) {
+      // salatt
+    } else if (_scrollController.offset > 17663 &&
+        _scrollController.offset < 18413) {
       index = 11;
-    } else if (_scrollController.offset > 15800) {
+      // burger
+    } else if (_scrollController.offset > 18413) {
       index = 12;
+      // pizza
     }
     setState(() {
       _tabController.index = index;
@@ -100,296 +130,314 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 15.0, left: 20),
-          child: Image.asset("img/Lounge-r.png", width: 300),
-        ),
-        title: Text(
-          "Delicious Menu AK Lounge",
-          style: TextStyle(color: Colors.red[900], fontWeight: FontWeight.bold),
-        ),
-        bottom: TabBar(
-          isScrollable: true,
-          controller: _tabController,
-          indicatorColor: Colors.amber,
-          tabs: <Widget>[
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
-                  ),
-                  child: const Text(
-                    "Meal",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    0, // Scroll to the top
-                    duration: const Duration(
-                      milliseconds: 500,
-                    ), // Animation duration
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(200.0), // here the desired height
+        child: AppBar(
+          actionsPadding: EdgeInsets.all(30),
+          flexibleSpace: Image(
+            width: 100,
+            height: 150,
+            image: AssetImage('img/header.png'),
+            fit: BoxFit.cover,
+          ),
+          leading: Padding(
+            padding: const EdgeInsets.only(top: 10, left: 10),
+            child: Image.asset("img/Lounge-r.png"),
+          ),
+          title: Padding(
+            padding: const EdgeInsets.only(top: 40.0),
+            child: Text(
+              "Delicious Menu AK Lounge",
+              style: TextStyle(
+                fontSize: 20,
+                color: Colors.red[900],
+                fontWeight: FontWeight.bold,
               ),
             ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+          ),
+          bottom: TabBar(
+            isScrollable: true,
+            controller: _tabController,
+            indicatorColor: Colors.amber,
+            // listenToScrollMomemnts
+            tabs: <Widget>[
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Meal",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Cake",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      0, // Scroll to the top
+                      duration: const Duration(
+                        milliseconds: 500,
+                      ), // Animation duration
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    402,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Cake",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Tea",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      477,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    1670,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Tea",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Juice",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      1986,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    2817,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Juice",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Cold Drinks",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      3295,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    4817,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Cold Drinks",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Ice Coffee",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      5767,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    6818,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Ice Coffee",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Hot Coffee",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      7974,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    7965,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Hot Coffee",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "معسلات",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      9286,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    9600,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "معسلات",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Birthday",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      11127,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    13215,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Birthday",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "نكهة",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      15486,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    13511,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "نكهة",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Salat",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      15845,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    14658,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Salat",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Burger",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      17199,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    15195,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-            Tab(
-              child: InkWell(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 15,
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Burger",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text(
-                    "Pizza",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      17763,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
                 ),
-                onTap: () {
-                  _scrollController.animateTo(
-                    15853,
-                    duration: const Duration(milliseconds: 500),
-                    curve: Curves.easeInOut, // Animation curve
-                  );
-                },
               ),
-            ),
-          ],
+              Tab(
+                child: InkWell(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      "Pizza",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  onTap: () {
+                    _scrollController.animateTo(
+                      18513,
+                      duration: const Duration(milliseconds: 500),
+                      curve: Curves.easeInOut, // Animation curve
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
       body: Column(
@@ -408,7 +456,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...meal.map((item) => _buildMenuItem(item)),
+                ...meal.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -419,7 +467,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...cake.map((item) => _buildMenuItem(item)),
+                ...cake.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -430,7 +478,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...tea.map((item) => _buildMenuItem(item)),
+                ...tea.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -441,7 +489,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...juice.map((item) => _buildMenuItem(item)),
+                ...juice.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -453,7 +501,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...coldDrink.map((item) => _buildMenuItem(item)),
+                ...coldDrink.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -464,7 +512,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...iceCoffee.map((item) => _buildMenuItem(item)),
+                ...iceCoffee.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -475,7 +523,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...hotCoffee.map((item) => _buildMenuItem(item)),
+                ...hotCoffee.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -486,7 +534,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...masel.map((item) => _buildMenuItem(item)),
+                ...masel.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -497,7 +545,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...birthday.map((item) => _buildMenuItem(item)),
+                ...birthday.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -508,7 +556,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...nakhat.map((item) => _buildMenuItem(item)),
+                ...nakhat.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -519,7 +567,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...salat.map((item) => _buildMenuItem(item)),
+                ...salat.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -530,7 +578,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...burger.map((item) => _buildMenuItem(item)),
+                ...burger.map((item) => _buildMenuItem(item, context)),
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     vertical: 10.0,
@@ -541,7 +589,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                 ),
-                ...pizza.map((item) => _buildMenuItem(item)),
+                ...pizza.map((item) => _buildMenuItem(item, context)),
               ],
             ),
           ),
@@ -572,11 +620,43 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                                 size: 20.0,
                               ),
                               color: Colors.red[300],
-                              onPressed: () {},
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.parse(
+                                    'https://api.whatsapp.com/send?phone=966541026606',
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: 45.0,
+                        width: 45.0,
+                        child: Center(
+                          child: Card(
+                            elevation: 5.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                25.0,
+                              ), // half of height and width of Image
+                            ),
+                            child: IconButton(
+                              icon: FaIcon(FontAwesomeIcons.tiktok, size: 20.0),
+                              color: Colors.red[300],
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.parse(
+                                    'https://www.tiktok.com/@akey.lounge?_t=ZS-8uIbX2lzLLM&_r=1',
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+
                       SizedBox(
                         height: 45.0,
                         width: 45.0,
@@ -594,7 +674,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                                 size: 20.0,
                               ),
                               color: Colors.red[300],
-                              onPressed: () {},
+                              onPressed: () {
+                                launchUrl(
+                                  Uri.parse(
+                                    'https://www.instagram.com/akey.lounge/?igsh=djM0OWNmZjdlZGJn#',
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -610,10 +696,16 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                                 25.0,
                               ), // half of height and width of Image
                             ),
-                            child: IconButton(
-                              icon: Icon(Icons.call, size: 20.0),
-                              color: Colors.red[300],
-                              onPressed: () {},
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Cart(),
+                                  ),
+                                );
+                              },
+                              child: CartIcon(),
                             ),
                           ),
                         ),
@@ -621,21 +713,36 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     ],
                   ),
                 ),
-                Text(
-                  'Copyright ©2020, All Rights Reserved.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 12.0,
-                    color: Color(0xFF162A49),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FaIcon(FontAwesomeIcons.phone, size: 10.0),
+                    SizedBox(width: 10),
+                    Text(
+                      '054 102 6606',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 12.0,
+                        color: Color(0xFF162A49),
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  'Powered by Nexsport',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                    fontSize: 12.0,
-                    color: Color(0xFF162A49),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    FaIcon(FontAwesomeIcons.envelope, size: 15.0),
+                    SizedBox(width: 10),
+                    Text(
+                      'info@ak1production.com',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 12.0,
+                        color: Color(0xFF162A49),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -654,17 +761,33 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
   }
 }
 
-Widget _buildMenuItem(item) {
+Widget _buildMenuItem(item, context) {
+  Cartprovider cartProvider = Provider.of<Cartprovider>(context);
+  WidgetsFlutterBinding.ensureInitialized();
+  initLocalStorage();
+  var uuid = Uuid();
+  var _key = uuid.v1();
   return FadeInUp(
     config: BaseAnimationConfig(
       delay: 1.seconds,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10),
-        child: Card(
+        child: Card.outlined(
+          key: Key(_key.toString()),
           surfaceTintColor: Colors.grey[400],
           shadowColor: Colors.black12,
           elevation: 50,
           child: ListTile(
+            onTap: () async {
+              Map<String, dynamic> itemMap = {
+                'key': _key,
+                'productImg': item.productImg,
+                'productPrice': item.productPrice,
+                'productSubTitle': item.productSubTitle,
+                'productTitle': item.productTitle,
+              };
+              cartProvider.addCart(itemMap);
+            },
             textColor: Colors.red[400],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20.0),
@@ -676,7 +799,6 @@ Widget _buildMenuItem(item) {
                 width: 100,
               ),
             ),
-
             title: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
@@ -693,12 +815,9 @@ Widget _buildMenuItem(item) {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
-            trailing: Padding(
-              padding: const EdgeInsets.only(left: 10.0),
-              child: Text(
-                "${item.productPrice}\ SR",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+            trailing: Text(
+              "${item.productPrice} SR",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ),
