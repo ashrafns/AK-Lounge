@@ -30,21 +30,21 @@ class _CartState extends State<Cart> {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.only(left: 20.0),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: SizedBox(
-              height: size.height * 0.5,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                physics: BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: List.generate(
-                    carts.length,
-                    (index) => SizedBox(
-                      height: 100,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: SizedBox(
+            // height: size.height * 0.5,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              physics: BouncingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: List.generate(
+                  carts.length,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10.0),
+                    child: SizedBox(
+                      height: 120,
                       width: size.width,
                       child: CartItem(cart: carts[index]),
                     ),
@@ -59,12 +59,17 @@ class _CartState extends State<Cart> {
           carts.isEmpty
               ? Container(
                 color: Colors.white,
-                child: Center(child: Text('No Any Items On the Cart')),
+                child: Center(
+                  child: Text(
+                    'No Any Items On the Cart',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                  ),
+                ),
               )
-              : Container(
-                height: size.height * 0.25,
+              : SizedBox(
+                height: size.height * 0.18,
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  padding: EdgeInsets.symmetric(vertical: 8),
                   child: Column(
                     children: [
                       Row(
@@ -85,13 +90,13 @@ class _CartState extends State<Cart> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.greenAccent,
+                              color: Colors.blueAccent,
                             ),
                           ),
                         ],
                       ),
                       Divider(),
-                      SizedBox(height: 20),
+                      SizedBox(height: 10),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -99,13 +104,13 @@ class _CartState extends State<Cart> {
                           FaIcon(
                             FontAwesomeIcons.ccVisa,
                             color: Colors.blueAccent,
-                            size: 50,
+                            size: 30,
                           ),
                           SizedBox(width: 50),
                           FaIcon(
                             FontAwesomeIcons.ccApplePay,
                             color: Colors.blueAccent,
-                            size: 50,
+                            size: 30,
                           ),
                         ],
                       ),
